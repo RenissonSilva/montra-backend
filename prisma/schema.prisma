@@ -13,25 +13,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            Int             @id @default(autoincrement())
-  name          String
-  email         String          @unique
-  password      String
-  createdAt     DateTime        @default(now())
-  bankStatement BankStatement[]
-  deletedAt     DateTime?
-}
-
-model BankStatement {
+model Users {
   id        Int       @id @default(autoincrement())
-  date      DateTime
-  title     String
-  amount    Decimal
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  month     String
-  year      String
+  name      String
+  email     String    @unique
+  password  String
   createdAt DateTime  @default(now())
   deletedAt DateTime?
+
+  bankStatements BankStatements[]
+
+  @@map("users")
+}
+
+model BankStatements {
+  id         Int       @id @default(autoincrement())
+  date       DateTime
+  title      String
+  amount     Decimal
+  categoryId Int?
+  month      String
+  year       String
+  userId     Int
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  user     Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Categories? @relation(fields: [categoryId], references: [id])
+
+  @@map("bank_statements")
+}
+
+model Categories {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  bankStatements BankStatements[]
+
+  @@map("categories")
 }
